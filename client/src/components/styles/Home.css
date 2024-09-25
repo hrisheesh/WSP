@@ -1,6 +1,9 @@
 .home-container {
     padding: 20px;
     text-align: center;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .category-buttons {
@@ -10,20 +13,23 @@
 }
 
 .category-button {
-    background-color: transparent;
-    border: 2px solid #007bff;
-    border-radius: 5px;
-    color: #007bff;
+    width: 235px; /* New width */
+    height: 235px; /* New height */
+    top: 106px; /* Positioning */
+    left: 43px; /* Positioning */
+    gap: 0px; /* No gap */
+    border-radius: 36px 0px 0px 0px; /* Rounded corners */
+    border: 5px solid transparent; /* Adjust border style */
+    opacity: 0.9; /* Adjust opacity */
+    background-color: #007bff; /* Background color */
+    color: white; /* Text color */
     cursor: pointer;
-    font-size: 16px;
-    margin: 0 10px;
-    padding: 10px 20px;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s, opacity 0.3s; /* Smooth transition */
 }
 
 .category-button:hover {
-    background-color: #007bff;
-    color: white;
+    background-color: #0056b3; /* Darker background on hover */
+    opacity: 1; /* Full opacity on hover */
 }
 
 .stories-section {
@@ -36,33 +42,53 @@
 }
 
 .stories-grid {
-    display: flex;
-    flex-wrap: nowrap; /* Change to nowrap for horizontal layout */
-    overflow-x: auto; /* Allow horizontal scrolling */
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Four equal columns */
+    gap: 20px; /* Space between grid items */
+    width: 100%; /* Set width to 100% to fill the container */
+    max-width: 1600px; /* Adjust max-width to fit four stories comfortably */
+    height: auto; /* Adjust height to fit content */
+    margin: 0 auto; /* Center the grid */
+    opacity: 0.9; /* Adjust opacity */
 }
 
 .story-card {
-    width: 257px;
-    height: 459px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px;
+    width: 257px; /* New width */
+    height: 459px; /* New height */
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
+    opacity: 0.9; /* Adjust opacity */
 }
 
 .story-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .story-card img {
     max-width: 100%;
     height: auto;
-    border-radius: 5px;
+    border-radius: 10px;
+}
+
+.see-more-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    margin-top: 20px;
+}
+
+.see-more-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }

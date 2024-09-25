@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import './styles/AddEditStory.css';
+import { createStory, updateStory } from '../services/apiService'; // Import service functions
 
 const categories = ['Food', 'Health and Fitness', 'Travel', 'Movie', 'Education'];
 
@@ -52,40 +53,35 @@ function AddEditStory({ isEditMode, existingStory, onSubmit }) {
 
         try {
             const token = localStorage.getItem('token');
-            const url = isEditMode && existingStory ? `/api/stories/${existingStory._id}` : '/api/stories';
-            const method = isEditMode ? 'PUT' : 'POST';
-
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    category: storyCategory,
-                    slides: slides.map(slide => ({
-                        heading: slide.heading,
-                        description: slide.description,
-                        mediaUrl: slide.mediaUrl,
-                    })),
-                }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                alert(`Story ${isEditMode ? 'Updated' : 'Posted'} Successfully: ${data.category}`);
-                onSubmit(data);
-            } else {
-                const errorData = await response.json();
-                alert(`Error: ${errorData.message}`);
+            if (!token) {
+                throw new Error('Authentication token not found. Please log in again.');
             }
+
+            const slidesData = slides.map(slide => ({
+                heading: slide.heading,
+                description: slide.description,
+                mediaUrl: slide.mediaUrl,
+            }));
+
+            let data;
+            if (isEditMode && existingStory) {
+                data = await updateStory(existingStory._id, storyCategory, slidesData, token);
+                alert(`Story Updated Successfully: ${data.category}`);
+            } else {
+                data = await createStory(storyCategory, slidesData, token);
+                alert(`Story Posted Successfully: ${data.category}`);
+            }
+
+            onSubmit(data);
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            console.error('Error:', error);
+            alert(`Error: ${error.message || 'An unexpected error occurred.'}`);
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="add-edit-story-form">
+            {error && <p className="error-message">{error}</p>}
             <div className="tabs">
                 {slides.map((_, index) => (
                     <button
@@ -97,7 +93,9 @@ function AddEditStory({ isEditMode, existingStory, onSubmit }) {
                         Slide {index + 1}
                     </button>
                 ))}
-                <button type="button" onClick={addSlide}>Add +</button>
+                {slides.length < 6 && (
+                    <button type="button" onClick={addSlide} className="add-slide-button">Add +</button>
+                )}
             </div>
             <div className="slide">
                 <h3>Slide {activeSlideIndex + 1}</h3>
@@ -130,7 +128,9 @@ function AddEditStory({ isEditMode, existingStory, onSubmit }) {
                     ))}
                 </select>
                 <div className="button-group">
-                    <button type="button" onClick={() => removeSlide(activeSlideIndex)}>Remove Slide</button>
+                    {slides.length > 3 && (
+                        <button type="button" onClick={() => removeSlide(activeSlideIndex)}>Remove Slide</button>
+                    )}
                     <div className="navigation-buttons">
                         {activeSlideIndex > 0 && (
                             <button type="button" onClick={() => setActiveSlideIndex(activeSlideIndex - 1)}>Previous</button>

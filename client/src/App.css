@@ -32,15 +32,16 @@
   margin: 0 10px;
   padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   background-color: #61dafb;
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .auth-buttons button:hover {
   background-color: #21a1f1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .App-link {
@@ -57,9 +58,26 @@
 }
 
 .message {
-  color: red; /* Change to your desired color for error messages */
+  color: red;
 }
 
 .success-message {
-  color: green; /* Change to your desired color for success messages */
+  color: green;
+}
+
+.register-button {
+    width: 136px; /* New width */
+    height: 45px; /* New height */
+    margin: 20px; /* Margin for spacing */
+    border-radius: 20px; /* Rounded corners */
+    opacity: 0.9; /* Adjust opacity */
+    background: #FF7373; /* Background color */
+    color: white; /* Text color */
+    cursor: pointer;
+    transition: background-color 0.3s, opacity 0.3s; /* Smooth transition */
+}
+
+.register-button:hover {
+    background-color: #FF4C4C; /* Darker background on hover */
+    opacity: 1; /* Full opacity on hover */
 }

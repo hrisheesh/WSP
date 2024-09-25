@@ -1,37 +1,40 @@
 .bookmark-page-container {
     padding: 20px;
     text-align: center;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stories-grid {
     display: flex;
-    flex-wrap: wrap; /* Allow wrapping for multiple rows */
-    justify-content: center; /* Center the stories */
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .story-card {
     width: 257px;
     height: 459px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 15px;
     margin: 10px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
 }
 
 .story-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .story-card img {
     max-width: 100%;
     height: auto;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 
 .back-button {
@@ -42,9 +45,11 @@
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .back-button:hover {
     background-color: #0056b3;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }

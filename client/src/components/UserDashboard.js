@@ -8,12 +8,7 @@ import Modal from './Modal';
 const categories = ['All', 'Food', 'Health and Fitness', 'Travel', 'Movie', 'Education'];
 
 function UserDashboard({ username, setLoggedInUsername }) {
-    const navigate = useNavigate(); // Initialize useNavigate
-
-    const handleNavigateToBookmarks = () => {
-        navigate('/bookmarks'); // Navigate to the BookmarkPage
-    };
-
+    const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isAddStoryOpen, setIsAddStoryOpen] = useState(false);
@@ -21,28 +16,23 @@ function UserDashboard({ username, setLoggedInUsername }) {
     const [userStories, setUserStories] = useState([]);
     const [isEditStoryOpen, setIsEditStoryOpen] = useState(false);
     const [currentStory, setCurrentStory] = useState(null);
-    const [isViewStoryOpen, setIsViewStoryOpen] = useState(false); // State to manage viewing a story
-    const [bookmarkCount, setBookmarkCount] = useState(0); // State to hold bookmark count
+    const [bookmarkCount, setBookmarkCount] = useState(0);
+    const [isViewStoryOpen, setIsViewStoryOpen] = useState(false);
+    const [loading, setLoading] = useState(true); // Loading state
+    const [showMoreUserStories, setShowMoreUserStories] = useState(false);
+    const [showMoreTopStories, setShowMoreTopStories] = useState(false);
 
-    const handleCategoryChange = (category) => {
-        setSelectedCategory(category);
-        fetchTopStories(category);
-    };
+    const userStoriesToShow = showMoreUserStories ? userStories : userStories.slice(0, 4);
+    const topStoriesToShow = showMoreTopStories ? topStories : topStories.slice(0, 4);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        setLoggedInUsername(null);
-        navigate('/');
+    const handleNavigateToBookmarks = () => {
+        navigate('/bookmarks'); // Navigate to the BookmarkPage
     };
 
     const fetchTopStories = async (category) => {
+        setLoading(true); // Set loading state
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/stories?category=${category === 'All' ? '' : category}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
+            const response = await fetch(`/api/stories?category=${category}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch top stories');
             }
@@ -50,18 +40,19 @@ function UserDashboard({ username, setLoggedInUsername }) {
             setTopStories(data);
         } catch (error) {
             console.error('Error fetching top stories:', error);
+        } finally {
+            setLoading(false); // Reset loading state
         }
     };
 
     const fetchUserStories = async () => {
+        setLoading(true); // Set loading state
         try {
             const token = localStorage.getItem('token');
             if (!token) {
                 throw new Error('No token found');
             }
             const userId = JSON.parse(atob(token.split('.')[1])).id;
-            console.log('Extracted user ID:', userId); // Debugging log
-            console.log('Fetching user stories for user ID:', userId); // Debugging log
             const response = await fetch(`/api/stories/user/${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -74,17 +65,19 @@ function UserDashboard({ username, setLoggedInUsername }) {
             setUserStories(data);
         } catch (error) {
             console.error('Error fetching user stories:', error);
+        } finally {
+            setLoading(false); // Reset loading state
         }
     };
 
     const fetchBookmarkCount = async () => {
+        setLoading(true); // Set loading state
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                return; // No need to fetch if not logged in
+                throw new Error('No token found');
             }
             const userId = JSON.parse(atob(token.split('.')[1])).id;
-            console.log('Fetching bookmark count for user ID:', userId); // Debugging log
             const response = await fetch(`/api/bookmarks/user/${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -97,6 +90,8 @@ function UserDashboard({ username, setLoggedInUsername }) {
             setBookmarkCount(data.length); // Assuming data is an array of bookmarks
         } catch (error) {
             console.error('Error fetching bookmark count:', error);
+        } finally {
+            setLoading(false); // Reset loading state
         }
     };
 
@@ -120,6 +115,13 @@ function UserDashboard({ username, setLoggedInUsername }) {
         setIsViewStoryOpen(true); // Open the view story modal
     };
 
+    const handleLogout = () => {
+        // Clear user data (e.g., remove token from local storage)
+        localStorage.removeItem('userToken');
+        // Redirect to home page
+        navigate('/'); // Change this line to navigate to the Home page
+    };
+
     return (
         <div className="user-dashboard-container">
             <div className="header">
@@ -132,7 +134,7 @@ function UserDashboard({ username, setLoggedInUsername }) {
                 </button>
                 {isDropdownOpen && (
                     <div className="dropdown-menu">
-                        <button onClick={handleLogout}>Logout</button>
+                        <button onClick={handleLogout} className="logout-button">Logout</button>
                     </div>
                 )}
             </div>
@@ -141,7 +143,7 @@ function UserDashboard({ username, setLoggedInUsername }) {
                     <button 
                         key={category} 
                         className={`category-button ${selectedCategory === category ? 'active' : ''}`}
-                        onClick={() => handleCategoryChange(category)}
+                        onClick={() => setSelectedCategory(category)}
                     >
                         {category}
                     </button>
@@ -149,9 +151,9 @@ function UserDashboard({ username, setLoggedInUsername }) {
             </div>
             <h2>Your Stories</h2>
             <div className="stories-grid">
-                {userStories.length > 0 ? (
-                    userStories.map((story, index) => (
-                        <div key={index} className="story-card" onClick={() => handleViewStory(story)}> {/* Make the entire card clickable */}
+                {userStoriesToShow.length > 0 ? (
+                    userStoriesToShow.map((story, index) => (
+                        <div key={index} className="story-card" onClick={() => handleViewStory(story)}>
                             <h3>{story.slides[0].heading}</h3>
                             <p>{story.slides[0].description}</p>
                             <img src={story.slides[0].mediaUrl} alt={story.slides[0].heading} />
@@ -162,11 +164,14 @@ function UserDashboard({ username, setLoggedInUsername }) {
                     <p>No stories available.</p>
                 )}
             </div>
+            {userStories.length > 4 && !showMoreUserStories && (
+                <button onClick={() => setShowMoreUserStories(true)} className="see-more-button">See More</button>
+            )}
             <h2>Top Stories About {selectedCategory}</h2>
             <div className="stories-grid">
-                {topStories.length > 0 ? (
-                    topStories.map((story, index) => (
-                        <div key={index} className="story-card" onClick={() => handleViewStory(story)}> {/* Make the entire card clickable */}
+                {topStoriesToShow.length > 0 ? (
+                    topStoriesToShow.map((story, index) => (
+                        <div key={index} className="story-card" onClick={() => handleViewStory(story)}>
                             <h3>{story.slides[0].heading}</h3>
                             <p>{story.slides[0].description}</p>
                             <img src={story.slides[0].mediaUrl} alt={story.slides[0].heading} />
@@ -176,6 +181,9 @@ function UserDashboard({ username, setLoggedInUsername }) {
                     <p>No top stories available.</p>
                 )}
             </div>
+            {topStories.length > 4 && !showMoreTopStories && (
+                <button onClick={() => setShowMoreTopStories(true)} className="see-more-button">See More</button>
+            )}
             <Modal isOpen={isAddStoryOpen} onClose={() => setIsAddStoryOpen(false)}>
                 <AddEditStory isEditMode={false} onSubmit={() => { fetchUserStories(); setIsAddStoryOpen(false); }} />
             </Modal>

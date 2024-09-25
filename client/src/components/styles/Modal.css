@@ -14,15 +14,18 @@
 .modal-content {
     background: white;
     padding: 20px;
-    border-radius: 8px;
-    width: 400px; /* Adjust width as needed */
+    border-radius: 20px 20px 20px 20px; /* Rounded corners */
+    width: 624px; /* Set width */
+    height: 482px; /* Set height */
     position: relative;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    opacity: 1; /* Slightly transparent */
 }
 
 .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 20px; /* Increased distance from the top */
+    right: 20px; /* Increased distance from the right */
     background: none;
     border: none;
     font-size: 20px;

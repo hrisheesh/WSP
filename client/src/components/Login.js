@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Assuming you have axios installed
+import { login } from '../services/apiService'; // Import the login function
 import Modal from './Modal'; // Assuming you have a Modal component
 
 function Login() {
@@ -23,17 +23,16 @@ function Login() {
         setLoading(true); // Set loading to true
 
         try {
-            const res = await axios.post('/api/auth/login', { username, password });
-            const token = res.data.token; // Assuming this is where you get the token
-            localStorage.setItem('token', token); // Store the token
+            const res = await login(username, password); // Use the centralized login function
+            localStorage.setItem('token', res.token); // Store the token
             setMessage('Login successful!');
             setIsSuccess(true);
-            console.log(res.data);
+            console.log(res);
             navigate('/dashboard'); // Redirect to UserDashboard after successful login
         } catch (err) {
-            setMessage(err.response?.data?.message || 'An error occurred');
+            setMessage(err.message || 'An error occurred');
             setIsSuccess(false);
-            console.error(err.response?.data);
+            console.error(err);
         } finally {
             setLoading(false); // Set loading to false
         }
@@ -43,12 +42,51 @@ function Login() {
         <>
             <button onClick={() => setIsOpen(true)}>Sign In</button>
             <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Login">
-                <form onSubmit={onSubmit}>
-                    <input type="text" name="username" value={username} onChange={onChange} placeholder="Enter username" required />
-                    <input type="password" name="password" value={password} onChange={onChange} placeholder="Enter password" required />
-                    <button type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
+                <h2 style={{ textAlign: 'center', color: 'black', fontSize: '28px', marginBottom: '15px' }}>Login</h2>
+                <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '20px', alignItems: 'center' }}>
+                    <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', color: 'black', width: '100%' }}>
+                        Username
+                        <input 
+                            type="text" 
+                            name="username" 
+                            value={username} 
+                            onChange={onChange} 
+                            placeholder="Enter username" 
+                            required 
+                            style={{ padding: '8px', borderRadius: '8px', border: '1px solid #ccc', width: '80%' }} 
+                        />
+                    </label>
+                    <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', color: 'black', width: '100%' }}>
+                        Password
+                        <input 
+                            type="password" 
+                            name="password" 
+                            value={password} 
+                            onChange={onChange} 
+                            placeholder="Enter password" 
+                            required 
+                            style={{ padding: '8px', borderRadius: '8px', border: '1px solid #ccc', width: '80%' }} 
+                        />
+                    </label>
+                    <button 
+                        type="submit" 
+                        disabled={loading} 
+                        style={{ 
+                            width: '129px', 
+                            height: '45px', 
+                            borderRadius: '20px', 
+                            backgroundColor: '#73ABFF', 
+                            color: 'white', 
+                            cursor: 'pointer', 
+                            alignSelf: 'center', 
+                            fontSize: '16px', 
+                            marginTop: '15px' 
+                        }}
+                    >
+                        {loading ? 'Logging in...' : 'Login'}
+                    </button>
                 </form>
-                {message && <p className={isSuccess ? 'success-message' : 'message'}>{message}</p>}
+                {message && <p className={isSuccess ? 'success-message' : 'message'} style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
             </Modal>
         </>
     );

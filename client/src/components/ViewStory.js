@@ -7,11 +7,11 @@ import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 import { faBookmark as solidBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as regularBookmark } from '@fortawesome/free-regular-svg-icons';
 import { faShareAlt } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
 import SharePopup from './SharePopup';
+import { getStoryById, toggleLike, addBookmark, removeBookmark, getBookmarkedStories } from '../services/apiService'; // Import service functions
 
 function ViewStory({ story, onClose }) {
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate();
     const [activeSlideIndex, setActiveSlideIndex] = useState(0);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
@@ -22,8 +22,28 @@ function ViewStory({ story, onClose }) {
     useEffect(() => {
         const fetchInitialState = async () => {
             try {
-                const response = await axios.get(`/api/stories/${story._id}`);
-                setLikeCount(response.data.likes);
+                const storyData = await getStoryById(story._id); // Fetch story details
+                setLikeCount(storyData.likes);
+
+                const userId = localStorage.getItem('userId'); // Ensure userId is stored in localStorage
+                const token = localStorage.getItem('token'); // Get token
+
+                // Set like status safely
+                if (storyData.likedBy && Array.isArray(storyData.likedBy)) {
+                    setIsLiked(storyData.likedBy.includes(userId));
+                } else {
+                    setIsLiked(false);
+                }
+
+                // Fetch user's bookmarks to check if the current story is bookmarked
+                if (token && userId) {
+                    const bookmarks = await getBookmarkedStories(userId);
+                    // Check if the current story is among the bookmarks
+                    const isBookmarkedStory = bookmarks.some(bookmark => bookmark.storyId._id === story._id);
+                    setIsBookmarked(isBookmarkedStory);
+                } else {
+                    setIsBookmarked(false);
+                }
             } catch (error) {
                 console.error('Error fetching initial state:', error);
             } finally {
@@ -34,7 +54,7 @@ function ViewStory({ story, onClose }) {
         fetchInitialState();
     }, [story._id]);
 
-    const toggleLike = async () => {
+    const toggleLikeHandler = async () => {
         const token = localStorage.getItem('token');
         if (!token) {
             navigate('/login'); // Redirect to login page
@@ -43,28 +63,25 @@ function ViewStory({ story, onClose }) {
 
         setLoading(true);
         try {
-            const response = await axios.post('/api/stories/like', {
-                storyId: story._id,
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-            setLikeCount(response.data.likes);
+            const response = await toggleLike(story._id, token); // Toggle like status
+            setLikeCount(response.likes);
             const userId = localStorage.getItem('userId');
-            const liked = response.data.likedBy.includes(userId);
+            const liked = response.likedBy.includes(userId);
             setIsLiked(liked);
         } catch (error) {
             console.error('Error updating like status:', error);
             if (error.response && error.response.status === 401) {
                 alert('Session expired. Please log in again.');
+                navigate('/login'); // Redirect if unauthorized
+            } else {
+                alert(error.message || 'Failed to update like status.');
             }
         } finally {
             setLoading(false);
         }
     };
 
-    const toggleBookmark = async () => {
+    const toggleBookmarkHandler = async () => {
         const token = localStorage.getItem('token');
         if (!token) {
             navigate('/login'); // Redirect to login page
@@ -74,33 +91,27 @@ function ViewStory({ story, onClose }) {
         setLoading(true);
         try {
             if (isBookmarked) {
-                const response = await axios.delete('/api/bookmarks', {
-                    data: { storyId: story._id },
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-                if (response.status === 200) {
+                // Attempt to remove bookmark
+                const response = await removeBookmark(story._id, token); // Remove bookmark
+                if (response.message === 'Bookmark removed successfully.') {
                     setIsBookmarked(false);
                 }
             } else {
-                const response = await axios.post('/api/bookmarks', {
-                    storyId: story._id,
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-                if (response.status === 201) {
+                // Attempt to add bookmark
+                const response = await addBookmark(story._id, token); // Add bookmark
+                if (response._id) { // Assuming the response includes the created bookmark's _id
                     setIsBookmarked(true);
                 }
             }
         } catch (error) {
             console.error('Error updating bookmark status:', error);
             if (error.response && error.response.status === 400) {
-                alert('Failed to update bookmark status. Please check the story ID.');
+                alert(error.message || 'Failed to update bookmark status.');
             } else if (error.response && error.response.status === 401) {
                 alert('Session expired. Please log in again.');
+                navigate('/login'); // Redirect if unauthorized
+            } else {
+                alert('An error occurred while updating bookmark status.');
             }
         } finally {
             setLoading(false);
@@ -109,30 +120,26 @@ function ViewStory({ story, onClose }) {
 
     const handleNext = () => {
         if (activeSlideIndex < story.slides.length - 1) {
-            setActiveSlideIndex(activeSlideIndex + 1);
+            setActiveSlideIndex(prevIndex => prevIndex + 1);
         }
     };
 
     const handlePrevious = () => {
         if (activeSlideIndex > 0) {
-            setActiveSlideIndex(activeSlideIndex - 1);
+            setActiveSlideIndex(prevIndex => prevIndex - 1);
         }
     };
 
     const handleShare = () => {
-        navigator.clipboard.writeText(`Check out this story: ${story.slides[activeSlideIndex].heading}`) // Copy message to clipboard
-            .then(() => {
-                setShowSharePopup(true); // Show the popup
-                setTimeout(() => setShowSharePopup(false), 3000); // Hide after 3 seconds
-            })
-            .catch(err => console.error('Failed to copy: ', err));
+        navigator.clipboard.writeText(window.location.href);
+        setShowSharePopup(true);
     };
 
     return (
         <div className="view-story-container">
             <button className="close-button" onClick={onClose}>✖</button>
             {showSharePopup && (
-                <SharePopup message="Liked is copied to clipboard." onClose={() => setShowSharePopup(false)} />
+                <SharePopup message="Story link copied to clipboard." onClose={() => setShowSharePopup(false)} />
             )}
             {story.slides && story.slides.length > 0 ? (
                 <>
@@ -155,7 +162,7 @@ function ViewStory({ story, onClose }) {
                             <>
                                 <button 
                                     className={`bookmark-button ${isBookmarked ? 'bookmarked' : ''}`} 
-                                    onClick={toggleBookmark} 
+                                    onClick={toggleBookmarkHandler} 
                                     disabled={loading}
                                 >
                                     <FontAwesomeIcon icon={isBookmarked ? solidBookmark : regularBookmark} />
@@ -163,7 +170,7 @@ function ViewStory({ story, onClose }) {
                                 <div className="like-button-container">
                                     <button 
                                         className={`like-button ${isLiked ? 'liked' : ''}`} 
-                                        onClick={toggleLike} 
+                                        onClick={toggleLikeHandler} 
                                         disabled={loading}
                                     >
                                         <FontAwesomeIcon icon={isLiked ? solidHeart : regularHeart} />

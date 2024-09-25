@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './styles/BookmarkPage.css'; // Import the CSS for styling
 import ViewStory from './ViewStory'; // Import the ViewStory component
 import Modal from './Modal';
+import { getBookmarkedStories } from '../services/apiService'; // Import the getBookmarkedStories function
 
 function BookmarkPage() {
     const [bookmarkedStories, setBookmarkedStories] = useState([]);
@@ -20,23 +21,15 @@ function BookmarkPage() {
         }
 
         try {
+            // Decode userId from token
             const payload = JSON.parse(atob(token.split('.')[1]));
             const userId = payload.id;
 
-            const response = await fetch(`/api/bookmarks/user/${userId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch bookmarked stories');
-            }
-
-            const data = await response.json();
+            const data = await getBookmarkedStories(userId); // Token is handled by interceptor
             setBookmarkedStories(data); // This now contains full story details
         } catch (error) {
             console.error('Error fetching bookmarked stories:', error);
+            alert(error.message || 'Failed to fetch bookmarks.');
         } finally {
             setLoading(false);
         }
