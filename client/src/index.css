@@ -1,0 +1,9 @@
+/* Removed Tailwind directives */
+
+/* Add your own base styles or reset styles */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* Add other global styles as needed */
+}

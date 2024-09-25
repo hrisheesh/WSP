@@ -1,0 +1,79 @@
+.view-story-container {
+    padding: 20px;
+    position: relative;
+}
+
+.slide {
+    margin-bottom: 20px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.like-section {
+    display: flex;
+    justify-content: space-between; /* Space between bookmark and like buttons */
+    align-items: center; /* Align items vertically centered */
+    margin-bottom: 20px; /* Add margin to separate from navigation buttons */
+}
+
+.bookmark-button {
+    background: none; /* No background */
+    border: none; /* No border */
+    font-size: 24px; /* Adjust size if needed */
+    cursor: pointer; /* Pointer cursor */
+    transition: color 0.3s; /* Smooth color transition */
+    color: black; /* Default color */
+    margin-right: 10px; /* Space between bookmark and like button */
+}
+
+.bookmark-button.bookmarked {
+    color: gold; /* Change color when bookmarked */
+}
+
+.like-button-container {
+    display: flex; /* Flex container for like button */
+    justify-content: flex-end; /* Align like button to the right */
+}
+
+.like-button {
+    background: none; /* No background */
+    border: none; /* No border */
+    font-size: 24px; /* Adjust size if needed */
+    cursor: pointer; /* Pointer cursor */
+    transition: color 0.3s; /* Smooth color transition */
+    color: black; /* Default color */
+}
+
+.like-button.liked {
+    color: red; /* Change color when liked */
+}
+
+.like-count {
+    margin-top: 5px;
+    font-size: 16px;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between; /* Space out the buttons */
+    width: 100%; /* Full width for spacing */
+}
+
+.prev-button, .next-button {
+    padding: 10px 20px; /* Add padding for buttons */
+    font-size: 16px; /* Adjust font size */
+    cursor: pointer; /* Pointer cursor */
+}

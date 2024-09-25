@@ -1,0 +1,106 @@
+.user-dashboard-container {
+    padding: 20px;
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-story-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #61dafb;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.category-button {
+    background-color: transparent;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0 10px;
+    padding: 10px 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.stories-section {
+    margin: 20px 0;
+}
+
+.stories-grid {
+    display: flex;
+    flex-wrap: nowrap; /* Change to nowrap for horizontal layout */
+    overflow-x: auto; /* Allow horizontal scrolling */
+    justify-content: center;
+}
+
+.story-card {
+    width: 257px;
+    height: 459px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.story-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.story-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.edit-button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+}
+
+.bookmark-button {
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007bff; /* Primary color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+}
+
+.bookmark-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
